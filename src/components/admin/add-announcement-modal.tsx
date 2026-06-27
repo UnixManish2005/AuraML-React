@@ -47,7 +47,7 @@ export default function AddAnnouncementModal({ onClose, onAdd }: AddAnnouncement
         body: JSON.stringify(data),
       });
       const result = await safeJson(res);
-      if (!res.ok) throw new Error(result.error);
+      if (!res.ok) throw new Error(String(result.error ?? "Unknown error"));
       onAdd(result.announcement);
       toast.success("Announcement published!");
     } catch (err) {

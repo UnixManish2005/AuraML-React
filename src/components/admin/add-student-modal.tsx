@@ -35,7 +35,7 @@ export default function AddStudentModal({ onClose, onAdd }: AddStudentModalProps
         body: JSON.stringify(data),
       });
       const result = await safeJson(res);
-      if (!res.ok) throw new Error(result.error);
+      if (!res.ok) throw new Error(String(result.error ?? "Unknown error"));
       onAdd(result.data);
       toast.success("Student added successfully");
     } catch (err) {

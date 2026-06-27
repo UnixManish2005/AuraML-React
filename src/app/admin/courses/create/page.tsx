@@ -69,7 +69,7 @@ export default function CreateCoursePage() {
         body: JSON.stringify(data),
       });
       const result = await safeJson<{ course: { id: string }; error?: string }>(res);
-      if (!res.ok) throw new Error(result.error ?? "Failed to create course");
+      if (!res.ok) throw new Error(String(result.error ?? "Failed to create course"));
       toast.success("Course created!");
       router.push(`/admin/courses/${result.course.id}`);
     } catch (err) {

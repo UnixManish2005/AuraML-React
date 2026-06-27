@@ -51,7 +51,7 @@ export default function AddTrainerModal({ onClose, onAdd }: AddTrainerModalProps
         body: JSON.stringify({ ...data, expertise: expertiseList }),
       });
       const result = await safeJson(res);
-      if (!res.ok) throw new Error(result.error);
+      if (!res.ok) throw new Error(String(result.error ?? "Unknown error"));
       onAdd(result.trainer);
       toast.success("Trainer added! Default password: Trainer@123");
     } catch (err) {

@@ -52,7 +52,7 @@ export default function AddBatchModal({ onClose, onAdd }: AddBatchModalProps) {
       const text = await res.text();
       const result = text ? JSON.parse(text) : {};
 
-      if (!res.ok) throw new Error(result.error || `Server error (${res.status})`);
+      if (!res.ok) throw new Error(String(result.error) || `Server error (${res.status})`);
       onAdd(result.batch);
       toast.success("Batch created!");
     } catch (err) {
