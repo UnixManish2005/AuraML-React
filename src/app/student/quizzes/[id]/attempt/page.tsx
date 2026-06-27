@@ -247,7 +247,7 @@ export default function QuizAttemptPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  if (!quiz || phase === "loading") return null;
+  if (!quiz) return null;
 
   const currentQuestion = quiz.questions[currentQ];
   const answered = Object.keys(answers).length;
