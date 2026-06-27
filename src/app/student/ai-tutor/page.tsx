@@ -164,7 +164,7 @@ export default function AITutorPage() {
             <h1 className="font-bold text-lg">AuraML Soul</h1>
             <div className="flex items-center gap-1.5 text-xs text-emerald-500">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Online • Powered by Gemini
+              Online 
             </div>
           </div>
         </div>
