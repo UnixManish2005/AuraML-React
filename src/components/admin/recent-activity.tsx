@@ -56,7 +56,8 @@ export default function RecentActivity({ students, attempts }: RecentActivityPro
       ) : (
         <div className="space-y-1">
           {activities.map((activity) => {
-            const { icon: Icon, color } = icons[activity.type];
+            const iconKey = activity.type as keyof typeof icons;
+            const { icon: Icon, color } = icons[iconKey] ?? icons.signup;
             return (
               <div key={activity.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
                 <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", color)}>
