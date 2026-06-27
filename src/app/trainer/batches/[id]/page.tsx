@@ -13,5 +13,5 @@ export default function TrainerBatchDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  return <BatchDetailView batchId={id} role="TRAINER" />;
+  return <BatchDetailView batchId={id} role="trainer" />;
 }
