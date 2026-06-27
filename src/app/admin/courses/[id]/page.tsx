@@ -121,7 +121,7 @@ function AddModuleModal({
         body: JSON.stringify({ courseId, title: title.trim(), description: description.trim() || undefined, order: nextOrder }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(String(data.error ?? "Server error"));
       onAdd({ ...data.module, lessons: [] });
       toast.success("Module added!");
     } catch (err) {
@@ -215,7 +215,7 @@ function AddLessonModal({
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(String(data.error ?? "Server error"));
       onAdd(data.lesson);
       toast.success("Lesson added!");
     } catch (err) {
@@ -407,7 +407,7 @@ function EnrollStudentModal({
         body: JSON.stringify({ studentId: student.studentProfile.id, batchId: selectedBatchId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(String(data.error ?? "Server error"));
       onEnrolled(selectedBatchId, data.batchStudent);
       toast.success(`${student.name} enrolled in ${selectedBatch?.name}`);
     } catch (err) {
@@ -568,7 +568,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
         body: JSON.stringify({ isPublished: !course.isPublished }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(String(data.error ?? "Server error"));
       setCourse((prev) => prev ? { ...prev, isPublished: !prev.isPublished } : prev);
       toast.success(course.isPublished ? "Course unpublished" : "Course is now live!");
     } catch { toast.error("Failed to update"); }

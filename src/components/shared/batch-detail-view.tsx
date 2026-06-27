@@ -105,7 +105,7 @@ function AddStudentModal({
         body: JSON.stringify({ studentId: student.studentProfile.id }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(String(data.error ?? "Server error"));
       onAdd(data.batchStudent);
       toast.success(`${student.name ?? student.email} added to batch`);
     } catch (err) {
@@ -270,7 +270,7 @@ export default function BatchDetailView({
       if (!res.ok) {
         const text = await res.text();
         const err = text ? JSON.parse(text) : {};
-        throw new Error(err.error || `Server error (${res.status})`);
+        throw new Error(String((err as Record<string,unknown>).error) || `Server error (${res.status})`);
       }
       setStudents((prev) => prev.filter((bs) => bs.student.id !== studentId));
       toast.success("Student removed from batch");

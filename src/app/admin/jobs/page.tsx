@@ -69,7 +69,7 @@ export default function AdminJobsPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(String(data.error ?? "Server error"));
       setJobs((prev) => [{ ...data.job, _count: { applications: 0 } }, ...prev]);
       setShowForm(false);
       setForm({ title: "", company: "", location: "", type: "JOB", description: "", salary: "", link: "", deadline: "", requirements: "" });

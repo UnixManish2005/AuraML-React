@@ -160,7 +160,7 @@ export default function QuizEditor({ quiz }: { quiz: QuizData }) {
           questions,
         }),
       });
-      if (!res.ok) throw new Error((await res.json()).error || "Save failed");
+      if (!res.ok) throw new Error(String((await res.json()).error ?? "Save failed"));
       toast.success("Quiz saved successfully!");
     } catch (err) {
       toast.error((err as Error).message);

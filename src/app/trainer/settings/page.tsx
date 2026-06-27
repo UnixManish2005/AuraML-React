@@ -35,7 +35,7 @@ export default function TrainerSettingsPage() {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed");
+      if (!res.ok) throw new Error(String(data.error ?? "Failed"));
 
       toast.success("Password updated successfully!");
       setCurrentPassword("");

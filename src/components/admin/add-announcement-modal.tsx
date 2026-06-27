@@ -17,7 +17,8 @@ interface AddAnnouncementModalProps {
   onAdd: (a: unknown) => void;
 }
 
-const ROLES = ["STUDENT", "TRAINER", "ADMIN"];
+const ROLES = ["STUDENT", "TRAINER", "ADMIN"] as const;
+type RoleValue = typeof ROLES[number];
 const TYPES = ["NOTICE", "EVENT", "WORKSHOP", "HACKATHON", "PLACEMENT", "GENERAL"];
 
 export default function AddAnnouncementModal({ onClose, onAdd }: AddAnnouncementModalProps) {
@@ -30,7 +31,7 @@ export default function AddAnnouncementModal({ onClose, onAdd }: AddAnnouncement
 
   const selectedRoles = watch("targetRoles") || [];
 
-  function toggleRole(role: string) {
+  function toggleRole(role: RoleValue) {
     const current = selectedRoles as string[];
     const updated = current.includes(role)
       ? current.filter((r) => r !== role)
