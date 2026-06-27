@@ -7,8 +7,6 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/helpers";
 import { studentSchema } from "@/lib/validators";
-import { sendEmail } from "@/lib/email";
-import { adminCreatedStudentEmail } from "@/lib/email/templates";
 
 export async function GET(req: NextRequest) {
   try {
@@ -115,10 +113,6 @@ export async function POST(req: NextRequest) {
       await tx.userAnalytics.create({ data: { userId: newUser.id } });
       return newUser;
     });
-
-    // Send credentials email — fire-and-forget
-    const template = adminCreatedStudentEmail(name, email, "Student@123");
-    sendEmail({ to: email, ...template });
 
     return NextResponse.json({ success: true, data: user }, { status: 201 });
   } catch (error) {

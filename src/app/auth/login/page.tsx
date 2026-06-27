@@ -130,6 +130,31 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* Demo accounts */}
+          <div className="mt-6 p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+            <p className="text-white/40 text-xs font-medium mb-3">DEMO ACCOUNTS</p>
+            <div className="space-y-2">
+              {demoAccounts.map((acc) => (
+                <button
+                  key={acc.role}
+                  onClick={() => {
+                    const emailEl = document.querySelector<HTMLInputElement>('input[type="email"]');
+                    const passEl = document.querySelector<HTMLInputElement>('input[type="password"], input[type="text"]');
+                    if (emailEl) emailEl.value = acc.email;
+                    if (passEl) passEl.value = acc.password;
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 transition-colors text-left"
+                >
+                  <div>
+                    <div className="text-xs font-medium text-white/70">{acc.role}</div>
+                    <div className="text-xs text-white/30">{acc.email}</div>
+                  </div>
+                  <span className="text-xs text-blue-400">Use →</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <p className="mt-6 text-center text-sm text-white/40">
             Don&apos;t have an account?{" "}
             <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">

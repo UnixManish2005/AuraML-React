@@ -11,7 +11,7 @@ import { signOut } from "next-auth/react";
 import {
   Brain, LayoutDashboard, BookOpen, HelpCircle, FileText,
   Code2, Award, Briefcase, MessageCircle, Beaker, LogOut,
-  ChevronRight, Menu, X, Flame, Star, Settings
+  ChevronRight, Menu, X, Flame, Star
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 
@@ -29,7 +29,6 @@ const navItems = [
   { label: "Projects", href: "/student/projects", icon: Code2 },
   { label: "Certificates", href: "/student/certificates", icon: Award },
   { label: "Jobs & Internships", href: "/student/jobs", icon: Briefcase },
-  { label: "Settings", href: "/student/settings", icon: Settings },
 ];
 
 export default function StudentSidebar({ user }: StudentSidebarProps) {

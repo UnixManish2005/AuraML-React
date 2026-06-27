@@ -7,8 +7,6 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { trainerSchema } from "@/lib/validators";
-import { sendEmail } from "@/lib/email";
-import { adminCreatedTrainerEmail } from "@/lib/email/templates";
 
 export async function GET() {
   try {
@@ -64,17 +62,13 @@ export async function POST(req: NextRequest) {
       const trainerProfile = await tx.trainer.create({
         data: { userId: user.id, bio, expertise: expertise || [], experience: experience || 0 },
         include: {
-  user: { select: { id: true, name: true, email: true, status: true, image: true } },
-  courses: { include: { course: { select: { title: true } } } },
-  _count: { select: { batches: true } },
-},
+    user: { select: { id: true, name: true, email: true, status: true, image: true } },
+    courses: { include: { course: { select: { title: true } } } },
+    _count: { select: { batches: true } },
+  },
       });
       return trainerProfile;
     });
-
-    // Send credentials email — fire-and-forget
-    const emailTemplate = adminCreatedTrainerEmail(name, email, "Trainer@123");
-    sendEmail({ to: email, ...emailTemplate });
 
     return NextResponse.json({ trainer }, { status: 201 });
   } catch (error) {
