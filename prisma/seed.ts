@@ -2,7 +2,7 @@
 // DATABASE SEED - Sample data for development
 // ============================================================
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
@@ -240,7 +240,7 @@ async function main() {
         quizId: quiz.id,
         type: q.type,
         question: q.question,
-        options: q.options || null,
+        options: q.options ?? Prisma.JsonNull,
         correctAnswer: q.correctAnswer,
         explanation: q.explanation,
         marks: q.marks,
