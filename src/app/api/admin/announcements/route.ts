@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { announcementSchema } from "@/lib/validators";
+import { Role } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -14,7 +15,7 @@ export async function GET() {
 
     const where = ["ADMIN", "SUPER_ADMIN"].includes(session.user.role)
       ? {}
-      : { isPublished: true, targetRoles: { has: session.user.role } };
+      : { isPublished: true, targetRoles: { has: session.user.role as Role } };
 
     const announcements = await db.announcement.findMany({
       where,
