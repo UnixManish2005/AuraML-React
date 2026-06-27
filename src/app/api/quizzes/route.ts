@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { quizSchema } from "@/lib/validators";
+import { QuestionType, Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -99,9 +100,9 @@ export async function POST(req: NextRequest) {
             difficulty?: number;
           }, i: number) => ({
             quizId: newQuiz.id,
-            type: q.type,
+            type: q.type as QuestionType,
             question: q.question,
-            options: q.options || null,
+            options: q.options && q.options.length > 0 ? q.options : Prisma.JsonNull,
             correctAnswer: q.correctAnswer,
             explanation: q.explanation || null,
             marks: q.marks || 1,

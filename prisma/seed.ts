@@ -2,7 +2,7 @@
 // DATABASE SEED - Sample data for development
 // ============================================================
 
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, QuestionType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
@@ -238,7 +238,7 @@ async function main() {
       create: {
         id: `q-python-${i + 1}`,
         quizId: quiz.id,
-        type: q.type,
+        type: q.type as QuestionType,
         question: q.question,
         options: q.options ?? Prisma.JsonNull,
         correctAnswer: q.correctAnswer,

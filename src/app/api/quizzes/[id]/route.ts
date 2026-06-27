@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { QuestionType, Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 
@@ -89,9 +90,9 @@ export async function PATCH(
             correctAnswer: string; explanation?: string; marks?: number; difficulty?: number;
           }, i: number) => ({
             quizId: id,
-            type: q.type,
+            type: q.type as QuestionType,
             question: q.question,
-            options: q.options && q.options.length > 0 ? q.options : null,
+            options: q.options && q.options.length > 0 ? q.options : Prisma.JsonNull,
             correctAnswer: q.type === "MULTIPLE_SELECT" && typeof q.correctAnswer === "string"
               ? q.correctAnswer.split(",").filter(Boolean)
               : q.correctAnswer,

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { lessonSchema } from "@/lib/validators";
+import { LessonType } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid data", details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { moduleId, order, videoUrl, pdfUrl, ...rest } = parsed.data;
+    const { moduleId, order, videoUrl, pdfUrl, type, ...rest } = parsed.data;
     const count = await db.lesson.count({ where: { moduleId } });
     const finalOrder = order ?? count + 1;
 
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
         order: finalOrder,
         videoUrl: videoUrl || null,
         pdfUrl: pdfUrl || null,
+        type: type as LessonType,
         ...rest,
       },
     });
