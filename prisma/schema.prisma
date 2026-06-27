@@ -1,0 +1,693 @@
+// ============================================================
+// PRISMA SCHEMA - EdTech AI Platform
+// Database: PostgreSQL (Supabase / Neon)
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TRAINER
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum BatchStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum LessonType {
+  VIDEO
+  PDF
+  TEXT
+  LINK
+  ASSIGNMENT
+  PROJECT
+}
+
+enum QuestionType {
+  MCQ
+  MULTIPLE_SELECT
+  TRUE_FALSE
+  FILL_BLANK
+  SCENARIO
+  CODING
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum CertificateType {
+  COURSE_COMPLETION
+  QUIZ_COMPLETION
+  PROJECT_COMPLETION
+}
+
+enum AnnouncementType {
+  NOTICE
+  EVENT
+  WORKSHOP
+  HACKATHON
+  PLACEMENT
+  GENERAL
+}
+
+enum JobType {
+  JOB
+  INTERNSHIP
+  HACKATHON
+  FREELANCE
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SHORTLISTED
+  SELECTED
+  REJECTED
+}
+
+enum ResumeTemplate {
+  MODERN
+  PROFESSIONAL
+  MINIMAL
+  CREATIVE
+}
+
+// ============================================================
+// CORE USER TABLES
+// ============================================================
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  emailVerified DateTime?
+  password      String?
+  image              String?
+  role               Role       @default(STUDENT)
+  status             UserStatus @default(ACTIVE)
+  mustChangePassword Boolean    @default(false)
+  phone         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  accounts         Account[]
+  sessions         Session[]
+  studentProfile   Student?
+  trainerProfile   Trainer?
+  adminProfile     Admin?
+  quizAttempts     QuizAttempt[]
+  certificates     Certificate[]
+  resumeProfiles   ResumeProfile[]
+  projectBuilds    ProjectBuild[]
+  notifications    Notification[]
+  announcements    Announcement[]     @relation("AnnouncementAuthor")
+  chatMessages     ChatMessage[]
+  analytics        UserAnalytics?
+  jobApplications  JobApplication[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================
+// STUDENT PROFILE
+// ============================================================
+
+model Student {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  college        String?
+  degree         String?
+  yearOfStudy    Int?
+  skills         String[] @default([])
+  githubUrl      String?
+  linkedinUrl    String?
+  portfolioUrl   String?
+  enrollmentDate DateTime @default(now())
+  totalPoints    Int      @default(0)
+  streak         Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batchStudents BatchStudent[]
+  progress      StudentProgress[]
+
+  @@map("students")
+}
+
+// ============================================================
+// TRAINER PROFILE
+// ============================================================
+
+model Trainer {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  expertise     String[]
+  bio           String?
+  experience    Int      @default(0) // years
+  rating        Float    @default(0)
+  totalStudents Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batches Batch[]
+  courses TrainerCourse[]
+  quizzes Quiz[]
+
+  @@map("trainers")
+}
+
+// ============================================================
+// ADMIN PROFILE
+// ============================================================
+
+model Admin {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  department String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admins")
+}
+
+// ============================================================
+// COURSE MANAGEMENT
+// ============================================================
+
+model Course {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String
+  thumbnail   String?
+  level       CourseLevel @default(BEGINNER)
+  duration    Int         @default(0) // hours
+  price       Float       @default(0)
+  isFree      Boolean     @default(true)
+  isPublished Boolean     @default(false)
+  tags        String[]
+  skills      String[]
+  syllabus    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  modules      Module[]
+  batches      Batch[]
+  quizzes      Quiz[]
+  certificates Certificate[]
+  trainers     TrainerCourse[]
+  progress     StudentProgress[]
+
+  @@map("courses")
+}
+
+model TrainerCourse {
+  id        String   @id @default(cuid())
+  trainerId String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([trainerId, courseId])
+  @@map("trainer_courses")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@map("modules")
+}
+
+model Lesson {
+  id          String     @id @default(cuid())
+  moduleId    String
+  title       String
+  description String?
+  type        LessonType
+  content     String?    // text content or URL
+  videoUrl    String?
+  pdfUrl      String?
+  duration    Int?       // minutes
+  order       Int
+  isFree      Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  module   Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress StudentProgress[]
+
+  @@map("lessons")
+}
+
+// ============================================================
+// BATCH MANAGEMENT
+// ============================================================
+
+model Batch {
+  id          String      @id @default(cuid())
+  name        String
+  courseId    String
+  trainerId   String
+  startDate   DateTime
+  endDate     DateTime
+  status      BatchStatus @default(UPCOMING)
+  capacity    Int
+  description String?
+  schedule    Json?       // { days: [], time: "" }
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  course        Course         @relation(fields: [courseId], references: [id])
+  trainer       Trainer        @relation(fields: [trainerId], references: [id])
+  batchStudents BatchStudent[]
+  quizzes       Quiz[]
+
+  @@map("batches")
+}
+
+model BatchStudent {
+  id        String   @id @default(cuid())
+  batchId   String
+  studentId String
+  joinedAt  DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  batch   Batch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, studentId])
+  @@map("batch_students")
+}
+
+// ============================================================
+// QUIZ SYSTEM
+// ============================================================
+
+model Quiz {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  courseId        String?
+  batchId         String?
+  trainerId       String?
+  duration        Int      // minutes
+  passingScore    Int      @default(60)
+  totalMarks      Int      @default(100)
+  negativeMarking Boolean  @default(false)
+  negativeValue   Float    @default(0.25)
+  randomize       Boolean  @default(true)
+  maxAttempts     Int      @default(3)
+  isPublished     Boolean  @default(false)
+  startDate       DateTime?
+  endDate         DateTime?
+  instructions    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  course    Course?       @relation(fields: [courseId], references: [id])
+  batch     Batch?        @relation(fields: [batchId], references: [id])
+  trainer   Trainer?      @relation(fields: [trainerId], references: [id])
+  questions Question[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id             String       @id @default(cuid())
+  quizId         String
+  type           QuestionType
+  question       String
+  options        Json?        // for MCQ/Multiple Select
+  correctAnswer  Json         // string or string[]
+  explanation    String?
+  marks          Int          @default(1)
+  difficulty     Int          @default(1) // 1-5
+  order          Int
+  codeTemplate   String?      // for coding questions
+  expectedOutput String?      // for coding questions
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers Answer[]
+
+  @@map("questions")
+}
+
+model QuizAttempt {
+  id          String        @id @default(cuid())
+  userId      String
+  quizId      String
+  status      AttemptStatus @default(IN_PROGRESS)
+  score       Float         @default(0)
+  totalMarks  Int
+  percentage  Float         @default(0)
+  passed      Boolean       @default(false)
+  startedAt   DateTime      @default(now())
+  completedAt DateTime?
+  timeTaken   Int?          // seconds
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers Answer[]
+
+  @@map("quiz_attempts")
+}
+
+model Answer {
+  id          String  @id @default(cuid())
+  attemptId   String
+  questionId  String
+  userAnswer  Json
+  isCorrect   Boolean @default(false)
+  marksObtained Float @default(0)
+
+  attempt  QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("answers")
+}
+
+// ============================================================
+// PROGRESS TRACKING
+// ============================================================
+
+model StudentProgress {
+  id          String   @id @default(cuid())
+  studentId   String
+  courseId    String
+  lessonId    String?
+  completed   Boolean  @default(false)
+  percentage  Float    @default(0)
+  watchTime   Int      @default(0) // seconds
+  lastAccessed DateTime @default(now())
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lesson  Lesson? @relation(fields: [lessonId], references: [id])
+
+  @@unique([studentId, courseId, lessonId])
+  @@map("student_progress")
+}
+
+// ============================================================
+// CERTIFICATES
+// ============================================================
+
+model Certificate {
+  id              String          @id @default(cuid())
+  userId          String
+  courseId        String?
+  type            CertificateType
+  certificateId   String          @unique @default(cuid())
+  title           String
+  issuedAt        DateTime        @default(now())
+  expiresAt       DateTime?
+  verificationUrl String?
+  metadata        Json?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id])
+
+  @@map("certificates")
+}
+
+// ============================================================
+// ATS RESUME BUILDER
+// ============================================================
+
+model ResumeProfile {
+  id          String         @id @default(cuid())
+  userId      String
+  title       String
+  template    ResumeTemplate @default(MODERN)
+  isDefault   Boolean        @default(false)
+  personalInfo Json          // name, email, phone, location, linkedin, github
+  summary     String?
+  experience  Json?          // array of { company, role, duration, bullets[] }
+  education   Json?          // array of { institution, degree, year, gpa }
+  skills      Json?          // { technical: [], soft: [], tools: [] }
+  projects    Json?          // array of { name, description, tech[], link, github }
+  achievements Json?         // array of strings
+  certifications Json?       // array of { name, issuer, date, url }
+  languages   Json?
+  atsScore    Float?
+  atsReport   Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resume_profiles")
+}
+
+// ============================================================
+// PROJECTS
+// ============================================================
+
+model ProjectBuild {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  category    String
+  difficulty  String
+  description String
+  techStack   String[]
+  structure   Json     // folder structure
+  readme      String
+  guide       Json     // implementation steps
+  codeSnippets Json?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("project_builds")
+}
+
+// ============================================================
+// AI CHATBOT
+// ============================================================
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String   // user | assistant
+  content   String
+  metadata  Json?    // { topic, tokens, model }
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+// ============================================================
+// ANNOUNCEMENTS
+// ============================================================
+
+model Announcement {
+  id          String           @id @default(cuid())
+  authorId    String
+  title       String
+  content     String
+  type        AnnouncementType @default(GENERAL)
+  targetRoles Role[]
+  isPublished Boolean          @default(true)
+  pinned      Boolean          @default(false)
+  expiresAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  author        User           @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+  notifications Notification[]
+
+  @@map("announcements")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id             String    @id @default(cuid())
+  userId         String
+  announcementId String?
+  title          String
+  message        String
+  isRead         Boolean   @default(false)
+  type           String    @default("general")
+  link           String?
+  createdAt      DateTime  @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  announcement Announcement? @relation(fields: [announcementId], references: [id])
+
+  @@map("notifications")
+}
+
+// ============================================================
+// PLACEMENT / JOBS
+// ============================================================
+
+model Job {
+  id           String      @id @default(cuid())
+  title        String
+  company      String
+  location     String
+  type         JobType
+  description  String
+  requirements String[]
+  salary       String?
+  link         String?
+  deadline     DateTime?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  applications JobApplication[]
+
+  @@map("jobs")
+}
+
+model JobApplication {
+  id        String            @id @default(cuid())
+  jobId     String
+  userId    String
+  resumeUrl String?
+  status    ApplicationStatus @default(APPLIED)
+  notes     String?
+  appliedAt DateTime          @default(now())
+
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, userId])
+  @@map("job_applications")
+}
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+
+model UserAnalytics {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  totalLoginTime  Int      @default(0) // minutes
+  coursesEnrolled Int      @default(0)
+  coursesCompleted Int     @default(0)
+  quizzesTaken    Int      @default(0)
+  avgQuizScore    Float    @default(0)
+  resumeScore     Float?
+  projectsBuilt   Int      @default(0)
+  lastActive      DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_analytics")
+}
+
+model PlatformAnalytics {
+  id          String   @id @default(cuid())
+  date        DateTime @unique @default(now())
+  activeUsers Int      @default(0)
+  newSignups  Int      @default(0)
+  quizAttempts Int     @default(0)
+  courseViews Int      @default(0)
+  resumeBuilds Int     @default(0)
+  aiChatCount Int      @default(0)
+
+  @@map("platform_analytics")
+}
