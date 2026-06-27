@@ -4,12 +4,14 @@
 
 "use client";
 
-import { BatchDetailView } from "@/components/shared/batch-detail-view";
+import BatchDetailView from "@/components/shared/batch-detail-view";
+import { use } from "react";
 
 export default function TrainerBatchDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  return <BatchDetailView batchId={params.id} role="TRAINER" />;
+  const { id } = use(params);
+  return <BatchDetailView batchId={id} role="TRAINER" />;
 }
