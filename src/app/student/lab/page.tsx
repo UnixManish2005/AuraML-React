@@ -11,6 +11,8 @@ import LinearRegressionLab from "@/components/lab/linear-regression";
 import KMeansLab from "@/components/lab/kmeans";
 import DecisionTreeLab from "@/components/lab/decision-tree";
 import NLPPipelineLab from "@/components/lab/nlp-pipeline";
+import LogisticRegressionLab from "@/components/lab/logistic-regression";
+import NeuralNetworkLab from "@/components/lab/neural-network";
 
 const LABS = [
   { id: "linear-regression", name: "Linear Regression", icon: TrendingUp, color: "from-blue-500 to-blue-600", desc: "Visualize how the model fits a line to data" },
@@ -29,6 +31,8 @@ export default function MLLabPage() {
     "kmeans": <KMeansLab />,
     "decision-tree": <DecisionTreeLab />,
     "nlp": <NLPPipelineLab />,
+    "logistic": <LogisticRegressionLab />,
+    "neural": <NeuralNetworkLab />,
   }[activeLabId] || (
     <div className="flex items-center justify-center h-96">
       <div className="text-center">
