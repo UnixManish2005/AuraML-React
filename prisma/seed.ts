@@ -11,7 +11,7 @@ async function main() {
   console.log("🌱 Seeding database...");
 
   // Hash passwords
-  const adminPass = await bcrypt.hash("Admin@123", 12);
+  const adminPass = await bcrypt.hash("MaNi#$@2005", 12);
   const trainerPass = await bcrypt.hash("Trainer@123", 12);
   const studentPass = await bcrypt.hash("Student@123", 12);
 
@@ -21,7 +21,7 @@ async function main() {
     update: { password: adminPass, role: "SUPER_ADMIN", status: "ACTIVE" },
     create: {
       name: "Super Admin",
-      email: "admin@auraml.com",
+      email: "auraml2005@gmail.com",
       password: adminPass,
       role: "SUPER_ADMIN",
       status: "ACTIVE",

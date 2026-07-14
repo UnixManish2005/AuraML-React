@@ -164,7 +164,7 @@ export default function LoginPage() {
 }
 
 const demoAccounts = [
-  { role: "Admin", email: "admin@auraml.com", password: "Admin@123" },
+  { role: "Admin", email: "auraml2005@gmail.com", password: "MaNi#$@2005" },
 ];
 
 const loginFeatures = [
