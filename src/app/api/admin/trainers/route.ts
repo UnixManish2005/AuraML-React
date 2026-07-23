@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { trainerSchema } from "@/lib/validators";
+import { sendEmail } from "@/lib/email";
+import { adminCreatedTrainerEmail } from "@/lib/email/templates";
 
 export async function GET() {
   try {
@@ -46,7 +48,8 @@ export async function POST(req: NextRequest) {
     const existing = await db.user.findUnique({ where: { email } });
     if (existing) return NextResponse.json({ error: "Email already registered" }, { status: 409 });
 
-    const hashedPassword = await bcrypt.hash("Trainer@123", 12);
+    const tempPassword = "Trainer@123";
+    const hashedPassword = await bcrypt.hash(tempPassword, 12);
 
     const trainer = await db.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -70,6 +73,8 @@ export async function POST(req: NextRequest) {
       return trainerProfile;
     });
 
+    const { subject, html } = adminCreatedTrainerEmail(name, email, tempPassword);
+    await sendEmail({ to: email, subject, html });
     return NextResponse.json({ trainer }, { status: 201 });
   } catch (error) {
     console.error("[TRAINER CREATE]", error);

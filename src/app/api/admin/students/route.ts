@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/helpers";
 import { studentSchema } from "@/lib/validators";
+import { sendEmail } from "@/lib/email";
+import { adminCreatedStudentEmail } from "@/lib/email/templates";
 
 export async function GET(req: NextRequest) {
   try {
@@ -101,7 +103,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
 
-    const hashedPassword = await bcrypt.hash("Student@123", 12);
+    const tempPassword = "Student@123";
+    const hashedPassword = await bcrypt.hash(tempPassword, 12);
 
     const user = await db.$transaction(async (tx) => {
       const newUser = await tx.user.create({
@@ -114,6 +117,8 @@ export async function POST(req: NextRequest) {
       return newUser;
     });
 
+    const { subject, html } = adminCreatedStudentEmail(name, email, tempPassword);
+    await sendEmail({ to: email, subject, html });
     return NextResponse.json({ success: true, data: user }, { status: 201 });
   } catch (error) {
     console.error("[STUDENTS POST]", error);

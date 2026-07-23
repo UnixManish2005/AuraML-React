@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { registerSchema } from "@/lib/validators";
+import { sendEmail } from "@/lib/email";
+import { studentSelfRegisterEmail } from "@/lib/email/templates";
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,7 +55,8 @@ export async function POST(req: NextRequest) {
 
       return newUser;
     });
-
+    const { subject, html } = studentSelfRegisterEmail(name, email, password);
+    await sendEmail({ to: email, subject, html });
     return NextResponse.json(
       { success: true, message: "Account created successfully", userId: user.id },
       { status: 201 }

@@ -32,7 +32,7 @@ if (
   return NextResponse.redirect(new URL("/auth/change-password", req.url));
 }
 
-  const role = session.user?.role;
+  const role = session.user?.role ?? "";
 
   // Role-based path protection
   if (pathname.startsWith("/admin") && !["ADMIN", "SUPER_ADMIN"].includes(role)) {
