@@ -3,7 +3,7 @@
 // ============================================================
 
 const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "AuraML";
-const appUrl  = process.env.NEXT_PUBLIC_APP_URL  ?? "http://localhost:3000";
+const appUrl  = process.env.NEXT_PUBLIC_APP_URL  ?? "https://aura-ml.vercel.app";
 
 // Shared wrapper so all emails look consistent
 function layout(content: string) {
@@ -112,7 +112,7 @@ export function studentSelfRegisterEmail(name: string, email: string, password: 
       courses, track your progress, and connect with trainers.
     </p>
 
-    ${ctaButton("Go to My Dashboard", `${appUrl}/auth/login`)}
+    ${ctaButton("Go to My Dashboard", `${appUrl}`)}
 
     <p style="margin:24px 0 0;color:#9ca3af;font-size:13px;">
       💡 <strong>Tip:</strong> You can change your password anytime from your profile settings.

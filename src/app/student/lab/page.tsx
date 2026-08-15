@@ -5,7 +5,7 @@
 "use client";
 
 import { useState } from "react";
-import { Beaker, TrendingUp, GitBranch, Circle, BarChart2, Layers, RefreshCw, MessageSquareText } from "lucide-react";
+import { Beaker, TrendingUp, GitBranch, Circle, BarChart2, Layers, RefreshCw, MessageSquareText, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LinearRegressionLab from "@/components/lab/linear-regression";
 import KMeansLab from "@/components/lab/kmeans";
@@ -13,12 +13,14 @@ import DecisionTreeLab from "@/components/lab/decision-tree";
 import NLPPipelineLab from "@/components/lab/nlp-pipeline";
 import LogisticRegressionLab from "@/components/lab/logistic-regression";
 import NeuralNetworkLab from "@/components/lab/neural-network";
+import CNNComputerVisionLab from "@/components/lab/cnn-computer-vision";
 
 const LABS = [
   { id: "linear-regression", name: "Linear Regression", icon: TrendingUp, color: "from-blue-500 to-blue-600", desc: "Visualize how the model fits a line to data" },
   { id: "kmeans", name: "K-Means Clustering", icon: Circle, color: "from-violet-500 to-violet-600", desc: "Watch clusters form in real-time" },
   { id: "decision-tree", name: "Decision Tree", icon: GitBranch, color: "from-emerald-500 to-emerald-600", desc: "Explore decision boundaries interactively" },
   { id: "nlp", name: "NLP Pipeline", icon: MessageSquareText, color: "from-cyan-500 to-blue-500", desc: "See tokenization, vectorization & embeddings in action" },
+  { id: "cnn-cv", name: "CNN & Computer Vision", icon: Eye, color: "from-indigo-500 to-purple-500", desc: "See real convolution, pooling & transfer learning in action" },
   { id: "logistic", name: "Logistic Regression", icon: BarChart2, color: "from-amber-500 to-amber-600", desc: "Binary classification visualization" },
   { id: "neural", name: "Neural Network", icon: Layers, color: "from-rose-500 to-rose-600", desc: "See how layers learn representations" },
 ];
@@ -31,6 +33,7 @@ export default function MLLabPage() {
     "kmeans": <KMeansLab />,
     "decision-tree": <DecisionTreeLab />,
     "nlp": <NLPPipelineLab />,
+    "cnn-cv": <CNNComputerVisionLab />,
     "logistic": <LogisticRegressionLab />,
     "neural": <NeuralNetworkLab />,
   }[activeLabId] || (
